@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "lab3-csa"
+name = "lab3_csa"
 version = "0.1.0"
 description = ""
 authors = ["filberol <mkh.vadim@gmail.com>"]
@@ -7,6 +7,13 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+
+[tool.poetry.group.dev.dependencies]
+coverage = "^7.2.7"
+mypy = "^1.4.1"
+pytest = "^7.4.0"
+pytest-golden = "^0.2.2"
+ruff = "^0.1.8"
 
 
 [build-system]

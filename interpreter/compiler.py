@@ -1,5 +1,4 @@
 import re
-import sys
 from interpreter.entities import Instruction, Register, Operation, AddressPointer
 
 
@@ -20,7 +19,7 @@ def parse_command(line: str) -> Operation:
 
 def compile_code(source_f, target_f):
     with open(source_f, encoding="utf-8") as f:
-        source_t = f.read()
+        source_str = f.read()
 
     # init line dependent variables and code maps
     instructions: dict[int, Operation] = {}
@@ -31,7 +30,7 @@ def compile_code(source_f, target_f):
     d_address = 1
 
     # compiling the source code with stubs for labels
-    source_lines = source_t.split('\n')  # split code into lines
+    source_lines = source_str.split('\n')  # split code into lines
     code_segment = True
     for source_line in source_lines:
         # track source code segments
@@ -75,30 +74,21 @@ def compile_code(source_f, target_f):
         for pointer in instruction.ops:
             if isinstance(pointer, AddressPointer):
                 if pointer.label is not None:
-                    print(pointer.label)
                     pointer.address = data_labels[pointer.label]
 
     print_debug_instructions(instructions)
     print_debug_data_seg(data_seg)
-    print(label_addresses)
-    print(data_labels)
 
 
 def print_debug_instructions(instructions: dict[int, Operation]):
     print("Code section")
     for key in instructions.keys():
-        print(f"0x{format(key, f'04x')} - {instructions[key].to_binary()}", end=' - ')
+        print(f"0x{format(key, '04x')} - {instructions[key].to_binary()}", end=' - ')
         print(f"{instructions[key].instr} - ops: {list(map(lambda x: str(x), instructions[key].ops))}")
 
 
 def print_debug_data_seg(instructions: dict[int, int]):
     print("Data section")
     for key in instructions.keys():
-        print(f"0x{format(key, f'02x')} - {format(instructions[key], '08b')}", end=' - ')
+        print(f"0x{format(key, '02x')} - {format(instructions[key], '08b')}", end=' - ')
         print(f"{chr(instructions[key]) if 32 <= instructions[key] <= 126 else instructions[key]}")
-
-
-if __name__ == "__main__":
-    assert len(sys.argv) == 3, "Wrong arguments: translator.py <input_file> <target_file>"
-    _, source, target = sys.argv
-    compile_code(source, target)

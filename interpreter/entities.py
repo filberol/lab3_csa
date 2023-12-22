@@ -41,7 +41,7 @@ class Instruction(str, Enum):
     JMP = 'jmp'
 
     def to_binary(self):
-        return format(instruction_to_opcode[self], f'08b')
+        return format(instruction_to_opcode[self], '08b')
 
 
 instruction_to_opcode = {
@@ -65,7 +65,7 @@ class Register(str, Enum):
     DI = 'di'
 
     def to_binary(self):
-        return format(register_to_code[self], f'04b')
+        return format(register_to_code[self], '04b')
 
 
 register_to_code = {
@@ -88,7 +88,7 @@ class AddressMode(int, Enum):
     RELATIVE_IP = 3
 
     def to_binary(self):
-        return format(self.value, f'02b')
+        return format(self.value, '02b')
 
 
 class AddressPointer:
@@ -107,10 +107,9 @@ class AddressPointer:
                 self.mode = AddressMode.ABSOLUTE
                 self.label = addressing.split('[')[1][:-1]
                 # address placed in compilation stage
-                print(self.label)
 
     def to_binary(self):
-        return f"{self.mode.to_binary()}{format(self.address, f'08b') if self.address else None}"
+        return f"{self.mode.to_binary()}{format(self.address, '08b') if self.address else None}"
 
     def __str__(self):
         return f'{hex(self.address) if self.address else None} {self.mode}'
@@ -126,7 +125,7 @@ class OperandMode(int, Enum):
     MEM_MEM = 7
 
     def to_binary(self):
-        return format(self.value, f'03b')
+        return format(self.value, '03b')
 
 
 operand_mode_to_bit_addition = {
