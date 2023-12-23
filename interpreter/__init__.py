@@ -1,4 +1,4 @@
-__all__ = ['compile_asm']
+__all__ = ['compile_asm', 'entities']
 
 from typing import TextIO
 
