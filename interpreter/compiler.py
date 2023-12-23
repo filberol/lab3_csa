@@ -79,6 +79,14 @@ def compile_code(source_f, target_f):
     print_debug_instructions(instructions)
     print_debug_data_seg(data_seg)
 
+    # write compiled data to destination
+    with open(target_f, 'w', encoding="utf-8") as f:
+        for key in instructions.keys():
+            f.write(f"{instructions[key].to_binary()}\n")
+        f.write('-\n')
+        for key in data_seg.keys():
+            f.write(f"{format(data_seg[key], '08b')}\n")
+
 
 def print_debug_instructions(instructions: dict[int, Operation]):
     print("Code section")
@@ -87,8 +95,8 @@ def print_debug_instructions(instructions: dict[int, Operation]):
         print(f"{instructions[key].instr} - ops: {list(map(lambda x: str(x), instructions[key].ops))}")
 
 
-def print_debug_data_seg(instructions: dict[int, int]):
+def print_debug_data_seg(data_cells: dict[int, int]):
     print("Data section")
-    for key in instructions.keys():
-        print(f"0x{format(key, '02x')} - {format(instructions[key], '08b')}", end=' - ')
-        print(f"{chr(instructions[key]) if 32 <= instructions[key] <= 126 else instructions[key]}")
+    for key in data_cells.keys():
+        print(f"0x{format(key, '02x')} - {format(data_cells[key], '08b')}", end=' - ')
+        print(f"{chr(data_cells[key]) if 32 <= data_cells[key] <= 126 else data_cells[key]}")

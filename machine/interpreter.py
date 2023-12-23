@@ -1,3 +1,4 @@
+import re
 import logging
 from interpreter.entities import opcode_to_instruction, Instruction
 
@@ -83,7 +84,11 @@ class Machine:
                 self.neg = 0
 
         def sel_reg(self, reg, src):
-            """Write selected register from alu, mem or input"""
+            """Write selected register from alu, mem or input
+               0: from mem by data_address
+               1: from alu
+               2: from input buffer
+            """
             match src:
                 case 0:
                     self.regs[reg] = self.data_seg[self.data_address]

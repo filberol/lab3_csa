@@ -1,5 +1,4 @@
 import sys
-
 from interpreter import compile_asm
 
 if __name__ == "__main__":
