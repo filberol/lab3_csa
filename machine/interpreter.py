@@ -1,22 +1,60 @@
-import sys
-
 from interpreter.entities import opcode_to_instruction, OperandMode
+
+REGISTER_COUNT = 8
 
 
 class Machine:
-    code_seg: dict[int, str] = None
-    data_seg: dict[int, int] = None
-    instr_to_exec: list[int] = None
+    class DataPath:
+        def __init__(self):
+            self.code_seg: dict[int, str] | None = None
+            self.data_seg: dict[int, int] | None = None
+            self.instr_to_exec: list[int] | None = None
 
-    def __init__(self):
-        self.ax: int = 0
-        self.bx: int = 0
-        self.cx: int = 0
-        self.dx: int = 0
-        self.sx: int = 0
-        self.ip: int = 0
-        self.si: int = 0
-        self.di: int = 0
+            self.regs = [0] * REGISTER_COUNT
+
+            self.l_bus = 0
+            self.r_bus = 0
+
+            self.l_const = 0
+            self.r_const = 0
+
+            self.l_alu = 0
+            self.r_alu = 0
+            self.zero = 0
+            self.neg = 0
+            self.alu = 0
+
+        def sel_l_bus(self, reg):
+            """Select the left input value on bus"""
+            assert 0 <= reg < 6, f"Only {REGISTER_COUNT} present"
+            self.l_bus = self.regs[reg]
+
+        def sel_r_bus(self, reg):
+            """Select the right value on bus"""
+            assert 0 <= reg < 6, f"Only {REGISTER_COUNT} present"
+            self.r_bus = self.regs[reg]
+
+        def sel_l_inp(self, inp_type):
+            """Select the left input on ALU"""
+            if inp_type:
+                self.l_alu = self.l_const
+            else:
+                self.l_alu = self.l_bus
+
+        def sel_r_inp(self, inp_type):
+            """Select the right input on ALU"""
+            if inp_type:
+                self.r_alu = self.r_const
+            else:
+                self.r_alu = self.r_bus
+
+        def is_zero(self):
+            """Check zero flag"""
+            return self.zero == 1
+
+        def is_neg(self):
+            """Check negative flag"""
+            return self.neg == 1
 
     def load_machine_from_file(self, compiled_file):
         code, data = compiled_file.split('-\n')
@@ -50,3 +88,5 @@ class Machine:
         instruction = opcode_to_instruction[instr_opcode]
         op_mode = OperandMode(op_mode_code)
         print(instruction, op_mode)
+
+

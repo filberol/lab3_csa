@@ -33,22 +33,52 @@ class Operation:
 
 
 class Instruction(str, Enum):
-    word_len = 4
-
-    MOV = 'mov'
-    ADD = 'add'
-    HALT = 'halt'
-    JMP = 'jmp'
+    ADD = "add"
+    SUB = "sub"
+    MUL = "mul"
+    DIV = "div"
+    MOD = "mod"
+    MOV = "mov"
+    DEFV = "defv"
+    JMP = "jmp"
+    JMPR = "jmpr"
+    HLT = "hlt"
+    JNE = "jne"
+    JE = "je"
+    CMP = "cmp"
+    PRINT = "print"
+    NOP = "nop"
+    READ = "read"
+    PRINTSTR = "printstr"
+    JLE = "jle"
+    JGE = "jge"
+    PRINTC = "printc"
 
     def to_binary(self):
         return format(instruction_to_opcode[self], '08b')
 
 
 instruction_to_opcode = {
-    Instruction.ADD: 0x01,
-    Instruction.MOV: 0x89,
-    Instruction.HALT: 0xF4,
-    Instruction.JMP: 0xFF,
+    Instruction.ADD: 0x01,  # Add
+    Instruction.SUB: 0x28,  # Subtraction
+    Instruction.MUL: 0x69,  # Multiply
+    Instruction.DIV: 0xF7,  # Divide
+    Instruction.MOD: 0xF8,  # Remainder
+    Instruction.MOV: 0x89,  # Move
+    Instruction.CMP: 0x38,  # Compare
+    Instruction.DEFV: 0x52,     #
+    Instruction.JMP: 0xE9,  # Absolute jump
+    Instruction.JMPR: 0xEA,     #
+    Instruction.HLT: 0xF4,  # Halt
+    Instruction.JNE: 0x7F,  # Jump not equal
+    Instruction.JE: 0x7E,   # Jump equal
+    Instruction.PRINT: 0xE6,    # Print
+    Instruction.NOP: 0x90,      # No operation
+    Instruction.READ: 0xE4,     # Input
+    Instruction.PRINTSTR: 0xE7,     # Print till 0
+    Instruction.JLE: 0x7A,      # Jump lesser equal
+    Instruction.JGE: 0x7B,      # Jump greater equal
+    Instruction.PRINTC: 0xE8    # Print char
 }
 
 opcode_to_instruction = {v: k for k, v in instruction_to_opcode.items()}
@@ -69,14 +99,14 @@ class Register(str, Enum):
 
 
 register_to_code = {
-    Register.AX: 0x1,  # Accumulator register
-    Register.BX: 0x2,  # Base register
-    Register.CX: 0x3,  # Counter register
-    Register.DX: 0x4,  # Data register
-    Register.IP: 0x5,  # Stack pointer
-    Register.SX: 0x6,  # Base pointer
-    Register.SI: 0x7,  # Source index
-    Register.DI: 0x8  # Destination index
+    Register.AX: 0x0,  # Accumulator register
+    Register.BX: 0x1,  # Base register
+    Register.CX: 0x2,  # Counter register
+    Register.DX: 0x3,  # Data register
+    Register.IP: 0x4,  # Stack pointer
+    Register.SX: 0x5,  # Base pointer
+    Register.SI: 0x6,  # Source index
+    Register.DI: 0x7  # Destination index
 }
 
 code_to_register = {v: k for k, v in register_to_code.items()}
