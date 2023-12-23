@@ -97,6 +97,16 @@ files = [
 ]
 
 [[package]]
+name = "logging"
+version = "0.4.9.6"
+description = "A logging module for Python"
+optional = false
+python-versions = "*"
+files = [
+    {file = "logging-0.4.9.6.tar.gz", hash = "sha256:26f6b50773f085042d301085bd1bf5d9f3735704db9f37c1ce6d8b85c38f2417"},
+]
+
+[[package]]
 name = "mypy"
 version = "1.8.0"
 description = "Optional static typing for Python"
@@ -349,4 +359,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "4cebd62ef0a6a4d4977c3755f499bb8f226e037519a36dcdd1b3d9a0ed039b03"
+content-hash = "c73397c939653aee0838d495ddf6fb4d261a342e28cc105898279682601aacd6"
