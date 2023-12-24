@@ -1,6 +1,7 @@
 import re
 import logging
-from interpreter.entities import opcode_to_instruction, Instruction
+from interpreter.entities import opcode_to_instruction, code_to_register, \
+    Instruction, OperandMode, Register, AddressPointer, AddressMode
 
 REGISTER_COUNT = 8
 
@@ -14,8 +15,8 @@ class Machine:
     class DataPath:
         """DataPath contains all the buses and registers inside the machine"""
         def __init__(self):
-            self.code_seg: dict[int, str] | None = None     # Instructions stored separately
-            self.data_seg: dict[int, int] | None = None     # Data stored separately
+            self.code_seg: dict[int, str] = {}     # Instructions stored separately
+            self.data_seg: dict[int, int] = {}     # Data stored separately
             self.instr_addr = None      # Current instruction address, fetched
             self.data_addr = None       # Current data address, fetched
             self.data_address = None    # Mem data pointer, set manually
@@ -34,6 +35,7 @@ class Machine:
             self.neg = 0    # Negative flag
             self.alu = 0    # Alu output value
 
+            # TODO
             self.input_buffer: list[str] = []
             self.output_buffer = []
 
@@ -160,12 +162,49 @@ class Machine:
                 # self.program_counter = instr['arg1']
             self.data_path.instr_addr = self.program_counter
 
+        def fetch_operands_from_command(self):
+            instr = self.data_path.code_seg[self.data_path.data_address]
+            op_mode: OperandMode = OperandMode(int(instr[8:11], 2))
+            # Fetch arguments from the binary
+            arg1 = None
+            arg2 = None
+            match op_mode:
+                # first reg
+                case OperandMode.REG | OperandMode.REG_REG | OperandMode.REG_MEM:
+                    arg1 = Register(code_to_register[int(instr[11:15], 2)])
+                    # second reg
+                    if op_mode == OperandMode.REG_REG:
+                        arg2 = Register(code_to_register[int(instr[15:19], 2)])
+                    # second mem
+                    elif op_mode == OperandMode.REG_MEM:
+                        addr_mode = AddressMode(int(instr[15:17], 2))
+                        addr = int(instr[17:25], 2)
+                        arg2 = AddressPointer(addr_mode=addr_mode, addr=addr)
+                # first mem
+                case OperandMode.MEM | OperandMode.MEM_REG | OperandMode.MEM_MEM:
+                    addr_mode = AddressMode(int(instr[11:13], 2))
+                    addr = int(instr[13:21], 2)
+                    arg1 = AddressPointer(addr_mode=addr_mode, addr=addr)
+                    if op_mode == OperandMode.MEM_REG:
+                        arg2 = Register(code_to_register[int(instr[21:25], 2)])
+                    elif op_mode == OperandMode.MEM_MEM:
+                        addr_mode = AddressMode(int(instr[21:23], 2))
+                        addr = int(instr[23:31], 2)
+                        arg2 = AddressPointer(addr_mode=addr_mode, addr=addr)
+            return arg1, arg2
+
         def decode_and_execute_instruction(self):
             # First fetch the instruction, decode operand mode, registers, and addresses
+            print(f"Fetching instruction on addr {hex(self.data_path.data_address)}")
             instr = self.data_path.code_seg[self.data_path.data_address]
-            opcode: Instruction = opcode_to_instruction[int(instr[0:8])]
+            opcode: Instruction = opcode_to_instruction[int(instr[0:8], 2)]
+            op_mode: OperandMode = OperandMode(int(instr[8:11], 2))
+            print(f"Fetched instruction {opcode} with operands {op_mode}")
+            arg1, arg2 = self.fetch_operands_from_command()
+            print(f"Arguments {arg1} and {arg2}")
 
             match opcode:
+                # Working, tested
                 case Instruction.HLT:
                     raise StopIteration()
 
@@ -263,8 +302,8 @@ class Machine:
                     self.tick()
     
                 case Instruction.MOV:
-                    arg1 = instr['arg1']
-                    arg2 = instr['arg2']
+                    # arg1 = instr['arg1']
+                    # arg2 = instr['arg2']
                     if re.search(r'^r[0-5]$', str(arg1)) is not None:
                         reg = int(re.search(r'[0-5]', re.search(r'^r[0-5]$', arg1).group(0)).group(0))
                         if isinstance(arg2, int):
@@ -342,26 +381,34 @@ class Machine:
                     self.tick()
 
     def load_machine_from_file(self, compiled_file):
-        code, data = compiled_file.split('-\n')
+        with open(compiled_file, encoding="utf-8") as f:
+            source_str = f.read()
+        code, data = source_str.split('-\n')
         self.load_code(code)
         self.load_data(data)
 
     def load_code(self, string_data):
-        instructions = string_data.split('\n')
+        instructions = string_data.strip().split('\n')
         for line in instructions:
             addr, instr = line.split(' ')
-            self.data_path.code_seg[int(addr)] = instr
+            self.data_path.code_seg[int(addr, 16)] = instr
 
     def load_data(self, string_data):
-        datalines = string_data.split('\n')
+        datalines = string_data.strip().split('\n')
         for line in datalines:
             addr, value = line.split(' ')
-            self.data_path.data_seg[int(addr)] = int(value)
+            self.data_path.data_seg[int(addr, 16)] = int(value)
+
+    def load_input_buffer_from_file(self, source_f):
+        with open(source_f, encoding="utf-8") as f:
+            source_str = f.read()
+            self.data_path.input_buffer = source_str
+        pass
 
     def init_start_state(self):
         self.data_path.sx = 0xFF
         self.data_path.ip = 0
-        self.data_path.instr_to_exec = sorted(self.data_path.code_seg.keys())
+        self.data_path.data_address = sorted(self.data_path.code_seg.keys())[0]
 
 
 

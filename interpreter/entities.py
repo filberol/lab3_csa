@@ -26,7 +26,7 @@ class Operation:
 
     def to_binary(self):
         return f"{self.instr.to_binary()}{self.op_mode.to_binary()}" \
-               f"{''.join(map(lambda x: x.to_binary(), self.ops))}{'0'*operand_mode_to_bit_addition[self.op_mode]}"
+               f"{''.join(map(lambda x: x.to_binary(), self.ops))}{'0' * operand_mode_to_bit_addition[self.op_mode]}"
 
     def __str__(self):
         return str(self.instr)
@@ -66,19 +66,19 @@ instruction_to_opcode = {
     Instruction.MOD: 0xF8,  # Remainder
     Instruction.MOV: 0x89,  # Move
     Instruction.CMP: 0x38,  # Compare
-    Instruction.DEFV: 0x52,     #
+    Instruction.DEFV: 0x52,  #
     Instruction.JMP: 0xE9,  # Absolute jump
-    Instruction.JMPR: 0xEA,     #
+    Instruction.JMPR: 0xEA,  #
     Instruction.HLT: 0xF4,  # Halt
     Instruction.JNE: 0x7F,  # Jump not equal
-    Instruction.JE: 0x7E,   # Jump equal
-    Instruction.PRINT: 0xE6,    # Print
-    Instruction.NOP: 0x90,      # No operation
-    Instruction.READ: 0xE4,     # Input
-    Instruction.PRINTSTR: 0xE7,     # Print till 0
-    Instruction.JLE: 0x7A,      # Jump lesser equal
-    Instruction.JGE: 0x7B,      # Jump greater equal
-    Instruction.PRINTC: 0xE8    # Print char
+    Instruction.JE: 0x7E,  # Jump equal
+    Instruction.PRINT: 0xE6,  # Print
+    Instruction.NOP: 0x90,  # No operation
+    Instruction.READ: 0xE4,  # Input
+    Instruction.PRINTSTR: 0xE7,  # Print till 0
+    Instruction.JLE: 0x7A,  # Jump lesser equal
+    Instruction.JGE: 0x7B,  # Jump greater equal
+    Instruction.PRINTC: 0xE8  # Print char
 }
 
 opcode_to_instruction = {v: k for k, v in instruction_to_opcode.items()}
@@ -122,10 +122,14 @@ class AddressMode(int, Enum):
 
 
 class AddressPointer:
-    def __init__(self, addressing: str):
+    def __init__(self, addressing: str = None, addr_mode: AddressMode = None, addr: int = None):
+        if addr_mode is not None and addr is not None:
+            self.mode = addr_mode
+            self.address = addr
+            return
         self.label: str | None = None
         self.address: int | None = None
-        try:    # check addressing type and make operand
+        try:  # check addressing type and make operand
             self.mode = AddressMode.ABSOLUTE
             self.address = int(addressing, 16)
         except ValueError:
@@ -167,5 +171,3 @@ operand_mode_to_bit_addition = {
     OperandMode.MEM_REG: 7,
     OperandMode.MEM_MEM: 1
 }
-
-

@@ -82,17 +82,18 @@ def compile_code(source_f, target_f):
     # write compiled data to destination
     with open(target_f, 'w', encoding="utf-8") as f:
         for key in instructions.keys():
-            f.write(f"{instructions[key].to_binary()}\n")
+            f.write(f"0x{format(key, '04x')} {instructions[key].to_binary()}\n")
         f.write('-\n')
         for key in data_seg.keys():
-            f.write(f"{format(data_seg[key], '08b')}\n")
+            f.write(f"0x{format(key, '02x')} {format(data_seg[key], '08b')}\n")
 
 
 def print_debug_instructions(instructions: dict[int, Operation]):
     print("Code section")
     for key in instructions.keys():
         print(f"0x{format(key, '04x')} - {instructions[key].to_binary()}", end=' - ')
-        print(f"{instructions[key].instr} - ops: {list(map(lambda x: str(x), instructions[key].ops))}")
+        print(f"{instructions[key].instr} - {instructions[key].op_mode} - ops:"
+              f" {list(map(lambda x: str(x), instructions[key].ops))}")
 
 
 def print_debug_data_seg(data_cells: dict[int, int]):
