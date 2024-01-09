@@ -1,4 +1,3 @@
-import re
 import logging
 from interpreter.entities import opcode_to_instruction, code_to_register, \
     Instruction, OperandMode, Register, AddressPointer, AddressMode, \

@@ -1,8 +1,5 @@
 __all__ = ['start_machine']
 
-from typing import TextIO
-
-
 def start_machine(code_file: str, input_file: str):
     from machine.interpreter import Machine
     machine = Machine()
