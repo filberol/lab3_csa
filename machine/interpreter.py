@@ -44,6 +44,7 @@ class Machine:
             """Select the left input value on bus"""
             assert 0 <= reg < 6, f"Only {REGISTER_COUNT} present"
             self.l_bus = self.regs[reg]
+            # print(f"New l bus value {self.l_bus}")
 
         def sel_r_bus(self, reg):
             """Select the right value on bus"""
@@ -96,10 +97,12 @@ class Machine:
 
         def set_zero(self):
             """Set zero flag of operation"""
-            if self.alu == 0:
+            if self.alu == 0 or chr(self.alu) == "0":
                 self.zero = 1
+                # print("Set zero")
             else:
                 self.zero = 0
+                # print("Reset zero")
 
         def set_neg(self):
             """Set negative flag of operation"""
@@ -156,13 +159,13 @@ class Machine:
                 symbol = self.alu
                 logging.debug(f'Output: {repr("".join(self.output_buffer))} << {repr(str(symbol))}')
                 self.output_buffer.append(str(symbol))
-                print(f"PRINT >>> {str(symbol)}")
+                print(f"PRINT >>> {str(symbol)} with code {symbol}")
             else:
                 symbol = chr(self.alu)
                 if symbol != "\0":
                     logging.debug(f'Output: {repr("".join(self.output_buffer))} << {repr(symbol)}')
                     self.output_buffer.append(symbol)
-                    print(f"PRINT >>> {symbol}")
+                    print(f"PRINT >>> {symbol} with code {self.alu}")
 
     class ControlUnit:
         def __init__(self, data_path: 'Machine.DataPath'):
@@ -226,13 +229,14 @@ class Machine:
 
         def decode_and_execute_instruction(self):
             # First fetch the instruction, decode operand mode, registers, and addresses
-            print(f"Fetching instruction on addr {hex(self.data_path.data_address)}")
+            # print(f"Fetching instruction on addr {hex(self.data_path.data_address)}")
             instr = self.data_path.code_seg[self.data_path.data_address]
             opcode: Instruction = opcode_to_instruction[int(instr[0:8], 2)]
             op_mode: OperandMode = OperandMode(int(instr[8:11], 2))
-            print(f"Fetched instruction {opcode} with operands {op_mode}")
+            # print(f"Fetched instruction {opcode} with operands {op_mode}")
             arg1, arg2 = self.fetch_operands_from_command()
-            print(f"Arguments {arg1} and {arg2}")
+            logging.debug(f"Instruction {opcode} with operands {op_mode}: {arg1} and {arg2}")
+            # print(f"Arguments {arg1} and {arg2}")
 
             match opcode:
                 # Working, tested
@@ -254,8 +258,10 @@ class Machine:
 
                 case Instruction.JNE:
                     if self.data_path.is_zero():
+                        # print("Not jumping")
                         self.latch_program_counter(sel_next=True)
                     else:
+                        # print("Really jumping")
                         self.latch_program_counter(sel_next=False)
                     self.data_path.sel_addr_src(0)
                     self.tick()
@@ -280,13 +286,18 @@ class Machine:
                      | Instruction.CMP:
                     arg1, arg2 = self.fetch_operands_from_command()
 
-                    for arg in arg1, arg2:
-                        if isinstance(arg, Register):
-                            self.data_path.sel_l_bus(register_to_code[arg])
-                            self.data_path.sel_l_inp(False)
-                        else:
-                            self.data_path.l_const = self.select_data_from_memory(arg)
-                            self.data_path.sel_l_inp(True)
+                    if isinstance(arg1, Register):
+                        self.data_path.sel_l_bus(register_to_code[arg1])
+                        self.data_path.sel_l_inp(False)
+                    if isinstance(arg1, AddressPointer):
+                        self.data_path.l_const = self.select_data_from_memory(arg1)
+                        self.data_path.sel_l_inp(True)
+                    if isinstance(arg2, Register):
+                        self.data_path.sel_r_bus(register_to_code[arg2])
+                        self.data_path.sel_r_inp(False)
+                    if isinstance(arg2, AddressPointer):
+                        self.data_path.r_const = self.select_data_from_memory(arg2)
+                        self.data_path.sel_r_inp(True)
 
                     match opcode:
                         case Instruction.ADD:
@@ -315,16 +326,17 @@ class Machine:
                 case Instruction.MOV:
                     arg1, arg2 = self.fetch_operands_from_command()
 
-                    for arg in arg1, arg2:
-                        if isinstance(arg, Register):
-                            self.data_path.sel_l_bus(register_to_code[arg])
-                            self.data_path.sel_l_inp(False)
-                        else:
-                            self.data_path.l_const = self.select_data_from_memory(arg)
-                            self.data_path.sel_l_inp(True)
+                    if isinstance(arg1, Register) and isinstance(arg2, AddressPointer):
+                        # print("Loading address into register")
+                        self.data_path.l_const = arg2.address
+                        self.data_path.sel_l_inp(True)
+                        self.data_path.r_const = 0
+                        self.data_path.sel_r_inp(True)
+                        self.data_path.calc_alu(0)
 
-                    if isinstance(arg1, Register):
-                        self.data_path.sel_reg(register_to_code[arg1], 1)
+                    # print(f"New ALU value {self.data_path.alu}")
+
+                    self.data_path.sel_reg(register_to_code[arg1], 1)
 
                     self.latch_program_counter(True)
                     self.data_path.sel_addr_src(0)
@@ -332,11 +344,11 @@ class Machine:
 
                 case Instruction.PRINT | Instruction.PRINTC:
                     arg1, _ = self.fetch_operands_from_command()
-                    print("Trying to print")
-                    print(arg1)
                     if isinstance(arg1, Register):
-                        self.data_path.sel_l_bus(register_to_code[arg1])
-                        self.data_path.sel_l_inp(False)
+                        # print(f"Fetching from register address")
+                        self.data_path.l_const = self.data_path.data_seg[self.data_path.regs[register_to_code[arg1]]]
+                        self.data_path.regs[register_to_code[arg1]] += 1
+                        self.data_path.sel_l_inp(True)
                         self.data_path.calc_alu(5)
                     else:
                         self.data_path.l_const = self.select_data_from_memory(arg1)

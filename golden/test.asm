@@ -1,6 +1,9 @@
 code:
 mov ax [text_label]
-print ax
+loop:
+printc ax
+cmp
+jne [loop]
 hlt
 data:
 text_label: Hello,_world!

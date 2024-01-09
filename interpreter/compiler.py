@@ -24,7 +24,7 @@ def compile_code(source_f, target_f):
     # init line dependent variables and code maps
     instructions: dict[int, Operation] = {}
     data_seg: dict[int, int] = {}
-    label_addresses: dict[str, int] = {}
+    code_labels: dict[str, int] = {}
     data_labels: dict[str, int] = {}
     c_address = 10
     d_address = 1
@@ -46,7 +46,7 @@ def compile_code(source_f, target_f):
         if code_segment:
             if source_line.strip().endswith(":"):  # if label then add label pointer
                 label = re.sub(r'\W+', '', source_line)
-                label_addresses[label] = c_address
+                code_labels[label] = c_address
             else:
                 operation = parse_command(source_line)
                 instructions[c_address] = operation
@@ -74,7 +74,10 @@ def compile_code(source_f, target_f):
         for pointer in instruction.ops:
             if isinstance(pointer, AddressPointer):
                 if pointer.label is not None:
-                    pointer.address = data_labels[pointer.label]
+                    if pointer.label in data_labels:
+                        pointer.address = data_labels[pointer.label]
+                    if pointer.label in code_labels:
+                        pointer.address = code_labels[pointer.label]
 
     print_debug_instructions(instructions)
     print_debug_data_seg(data_seg)

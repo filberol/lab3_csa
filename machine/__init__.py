@@ -3,7 +3,7 @@ __all__ = ['start_machine']
 from typing import TextIO
 
 
-def start_machine(code_file: TextIO, input_file: TextIO):
+def start_machine(code_file: str, input_file: str):
     from machine.interpreter import Machine
     machine = Machine()
     machine.load_machine_from_file(code_file)

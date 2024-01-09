@@ -1,9 +1,6 @@
-# pylint: disable=missing-class-docstring     # чтобы не быть Капитаном Очевидностью
-# pylint: disable=missing-function-docstring  # чтобы не быть Капитаном Очевидностью
-# pylint: disable=line-too-long               # строки с ожидаемым выводом
-
-"""Интеграционные тесты транслятора и машины
-"""
+# pylint: disable=missing-class-docstring
+# pylint: disable=missing-function-docstring
+# pylint: disable=line-too-long
 
 import contextlib
 import io
@@ -17,27 +14,6 @@ import interpreter
 import machine
 
 
-# Тут используется подход golden tests. У него не самая удачная реализация для
-# python: https://pypi.org/project/pytest-golden/ , но знать об этом подходе
-# крайне полезно.
-#
-# Принцип работы следующий: во внешних файлах специфицируются входные и выходные
-# данные для теста. При запуске тестов происходит сравнение и если выход
-# изменился -- выводится ошибка.
-#
-# Если вы меняете логику работы приложения -- то запускаете тесты с ключом:
-# `cd src/brainfuck && true && pytest . -v --update-goldens`
-#
-# Это обновит файлы конфигурации и вы можете закоммитить изменения в репозиторий,
-# если они корректные.
-#
-# Формат файла описания теста -- YAML. Поля определяются самим тестом:
-#
-# - source -- исходный код на вход
-# - input -- данные на ввод процессора
-# - code -- машинный код на выходе из транслятора
-# - output -- стандартный вывод программ
-# - log -- журнал программы
 @pytest.mark.golden_test("golden/*.yml")
 def test_whole_by_golden(golden, caplog):
     # Установим уровень отладочного вывода на DEBUG
@@ -61,7 +37,7 @@ def test_whole_by_golden(golden, caplog):
         with contextlib.redirect_stdout(io.StringIO()) as stdout:
             interpreter.compile_asm(source, target)
             print("============================================================")
-            # machine.([target, input_stream])
+            machine.start_machine(target, input_stream)
 
         # Выходные данные также считываем в переменные.
         with open(target, encoding="utf-8") as file:
@@ -69,5 +45,5 @@ def test_whole_by_golden(golden, caplog):
 
         # Проверяем, что ожидания соответствуют реальности.
         assert code == golden.out["code"] + '\n'
-        assert stdout.getvalue() == golden.out["output"]
-        assert caplog.text == golden.out["log"]
+        assert stdout.getvalue() == golden.out["output"] + '\n'
+        assert caplog.text == golden.out["log"] + '\n'
