@@ -1,7 +1,6 @@
 code:
-mov ax [label0]
-add ax bx
+mov ax [text_label]
+print ax
 hlt
 data:
-label0: Hello,_world!
-label1: 0x12
+text_label: Hello,_world!

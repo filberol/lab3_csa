@@ -1,13 +1,15 @@
 import re
 import logging
 from interpreter.entities import opcode_to_instruction, code_to_register, \
-    Instruction, OperandMode, Register, AddressPointer, AddressMode
+    Instruction, OperandMode, Register, AddressPointer, AddressMode, \
+    register_to_code
 
 REGISTER_COUNT = 8
 
 
 class Machine:
     """Machine has all the simulation logic, divided into data path and control unit"""
+
     def __init__(self):
         self.data_path = self.DataPath()
         self.control_unit = self.ControlUnit(self.data_path)
@@ -15,27 +17,26 @@ class Machine:
     class DataPath:
         """DataPath contains all the buses and registers inside the machine"""
         def __init__(self):
-            self.code_seg: dict[int, str] = {}     # Instructions stored separately
-            self.data_seg: dict[int, int] = {}     # Data stored separately
-            self.instr_addr = None      # Current instruction address, fetched
-            self.data_addr = None       # Current data address, fetched
-            self.data_address = None    # Mem data pointer, set manually
+            self.code_seg: dict[int, str] = {}  # Instructions stored separately
+            self.data_seg: dict[int, int] = {}  # Data stored separately
+            self.instr_addr = None  # Current instruction address, fetched
+            self.data_addr = None  # Current data address, fetched
+            self.data_address = None  # Mem data pointer, set manually
 
-            self.regs: list[int] = [0] * REGISTER_COUNT     # Set of registers, index defined by enum
+            self.regs: list[int] = [0] * REGISTER_COUNT  # Set of registers, index defined by enum
 
-            self.l_bus: int = 0     # Left bus node
-            self.r_bus: int = 0     # Right bus node
+            self.l_bus: int = 0  # Left bus node
+            self.r_bus: int = 0  # Right bus node
 
-            self.l_const: int = 0   # Left const
-            self.r_const: int = 0   # Right const
+            self.l_const: int = 0  # Left const
+            self.r_const: int = 0  # Right const
 
-            self.l_alu: int = 0     # Left alu input
-            self.r_alu = 0          # Right alu input
-            self.zero = 0   # Zero flag
-            self.neg = 0    # Negative flag
-            self.alu = 0    # Alu output value
+            self.l_alu: int = 0  # Left alu input
+            self.r_alu = 0  # Right alu input
+            self.zero = 0  # Zero flag
+            self.neg = 0  # Negative flag
+            self.alu = 0  # Alu output value
 
-            # TODO
             self.input_buffer: list[str] = []
             self.output_buffer = []
 
@@ -50,18 +51,40 @@ class Machine:
             self.r_bus = self.regs[reg]
 
         def sel_l_inp(self, inp_type):
-            """Select the left input on ALU"""
+            """Select the left input on ALU
+               True - const
+               False - bus
+            """
             if inp_type:
                 self.l_alu = self.l_const
             else:
                 self.l_alu = self.l_bus
 
         def sel_r_inp(self, inp_type):
-            """Select the right input on ALU"""
+            """Select the right input on ALU
+               True - const
+               False - bus
+            """
             if inp_type:
                 self.r_alu = self.r_const
             else:
                 self.r_alu = self.r_bus
+
+        def calc_alu(self, operation):
+            """Hardwired Alu math operations"""
+            match operation:
+                case 0:
+                    self.alu = self.l_alu + self.r_alu
+                case 1:
+                    self.alu = self.l_alu - self.r_alu
+                case 2:
+                    self.alu = self.l_alu * self.r_alu
+                case 3:
+                    self.alu = self.l_alu // self.r_alu
+                case 4:
+                    self.alu = self.l_alu % self.r_alu
+                case 5:
+                    self.alu = self.l_alu
 
         def is_zero(self):
             """Check zero flag"""
@@ -133,17 +156,19 @@ class Machine:
                 symbol = self.alu
                 logging.debug(f'Output: {repr("".join(self.output_buffer))} << {repr(str(symbol))}')
                 self.output_buffer.append(str(symbol))
+                print(f"PRINT >>> {str(symbol)}")
             else:
                 symbol = chr(self.alu)
                 if symbol != "\0":
                     logging.debug(f'Output: {repr("".join(self.output_buffer))} << {repr(symbol)}')
                     self.output_buffer.append(symbol)
+                    print(f"PRINT >>> {symbol}")
 
     class ControlUnit:
         def __init__(self, data_path: 'Machine.DataPath'):
-            self.program_counter: int = 0   # Program count is separate and synchronized with data path
-            self.data_path: Machine.DataPath = data_path    # DataPath link
-            self._tick: int = 0     # Tick simulation counter on instruction level
+            self.program_counter: int = 0  # Program count is separate and synchronized with data path
+            self.data_path: Machine.DataPath = data_path  # DataPath link
+            self._tick: int = 0  # Tick simulation counter on instruction level
 
         def tick(self):
             """Simulate ticks for operations"""
@@ -155,12 +180,11 @@ class Machine:
         def latch_program_counter(self, sel_next: bool):
             if sel_next:
                 self.program_counter += 1
-            # else:
-                # TODO here fetch the instruction and from first arg get new program counter data
-                # instr = self.data_path.code_seg[self.data_path.data_address]
-                # assert 'arg1' in instr or instr['arg1'] is not None, "internal error"
-                # self.program_counter = instr['arg1']
+            else:
+                arg1, _ = self.fetch_operands_from_command()
+                self.program_counter = arg1.address
             self.data_path.instr_addr = self.program_counter
+            self.tick()
 
         def fetch_operands_from_command(self):
             instr = self.data_path.code_seg[self.data_path.data_address]
@@ -193,6 +217,13 @@ class Machine:
                         arg2 = AddressPointer(addr_mode=addr_mode, addr=addr)
             return arg1, arg2
 
+        def select_data_from_memory(self, addr_p: AddressPointer):
+            match addr_p.mode:
+                case AddressMode.ABSOLUTE:
+                    return self.data_path.data_seg[addr_p.address]
+            self.tick()
+            return 0
+
         def decode_and_execute_instruction(self):
             # First fetch the instruction, decode operand mode, registers, and addresses
             print(f"Fetching instruction on addr {hex(self.data_path.data_address)}")
@@ -212,7 +243,7 @@ class Machine:
                     self.latch_program_counter(sel_next=False)
                     self.data_path.sel_addr_src(0)
                     self.tick()
-    
+
                 case Instruction.JE:
                     if self.data_path.is_zero():
                         self.latch_program_counter(sel_next=False)
@@ -220,7 +251,7 @@ class Machine:
                         self.latch_program_counter(sel_next=True)
                     self.data_path.sel_addr_src(0)
                     self.tick()
-    
+
                 case Instruction.JNE:
                     if self.data_path.is_zero():
                         self.latch_program_counter(sel_next=True)
@@ -228,7 +259,7 @@ class Machine:
                         self.latch_program_counter(sel_next=False)
                     self.data_path.sel_addr_src(0)
                     self.tick()
-    
+
                 case Instruction.JLE:
                     if self.data_path.is_neg() or self.data_path.is_zero():
                         self.latch_program_counter(sel_next=False)
@@ -236,7 +267,7 @@ class Machine:
                         self.latch_program_counter(sel_next=True)
                     self.data_path.sel_addr_src(0)
                     self.tick()
-    
+
                 case Instruction.JGE:
                     if not self.data_path.is_neg() or self.data_path.is_zero():
                         self.latch_program_counter(sel_next=False)
@@ -244,37 +275,18 @@ class Machine:
                         self.latch_program_counter(sel_next=True)
                     self.data_path.sel_addr_src(0)
                     self.tick()
-    
-                case Instruction.ADD | Instruction.SUB | Instruction.MUL | Instruction.DIV | Instruction.MOD | Instruction.CMP:
-                    arg1 = 0
-                    arg2 = 0
-                    if opcode == Instruction.CMP:
-                        arg1 = instr['arg1']
-                        arg2 = instr['arg2']
-                    else:
-                        arg1 = instr['args'][0]
-                        arg2 = instr['args'][1]
-                    if re.search(r'^r[0-5]$', str(arg1)) is not None:
-                        reg = int(re.search(r'[0-5]', re.search(r'^r[0-5]$', str(arg1)).group(0)).group(0))
-                        self.data_path.sel_l_bus(reg)
-                        self.data_path.sel_l_inp(False)
-                    elif re.search(r'^(-?[1-9][0-9]*|0)$', str(arg1)) is not None:
-                        const = int(re.search(r'(-?[1-9][0-9]*|0)', str(arg1)).group(0))
-                        self.data_path.l_const = const
-                        self.data_path.sel_l_inp(True)
 
-                    if re.search(r'^r[0-5]$', str(arg2)) is not None:
-                        reg = int(re.search(r'[0-5]', re.search(r'^r[0-5]$', str(arg2)).group(0)).group(0))
-                        self.data_path.sel_r_bus(reg)
-                        self.data_path.sel_r_inp(False)
-                    elif re.search(r'^(-?[1-9][0-9]*|0)$', str(arg2)) is not None:
-                        const = int(re.search(r'(-?[1-9][0-9]*|0)', str(arg2)).group(0))
-                        self.data_path.r_const = const
-                        self.data_path.sel_r_inp(True)
-                    elif arg2 == '\0':
-                        const = 0
-                        self.data_path.r_const = const
-                        self.data_path.sel_r_inp(True)
+                case Instruction.ADD | Instruction.SUB | Instruction.MUL | Instruction.DIV | Instruction.MOD \
+                     | Instruction.CMP:
+                    arg1, arg2 = self.fetch_operands_from_command()
+
+                    for arg in arg1, arg2:
+                        if isinstance(arg, Register):
+                            self.data_path.sel_l_bus(register_to_code[arg])
+                            self.data_path.sel_l_inp(False)
+                        else:
+                            self.data_path.l_const = self.select_data_from_memory(arg)
+                            self.data_path.sel_l_inp(True)
 
                     match opcode:
                         case Instruction.ADD:
@@ -283,7 +295,7 @@ class Machine:
                             self.data_path.calc_alu(1)
                         case Instruction.MUL:
                             self.data_path.calc_alu(2)
-                        case Instruction.DEV:
+                        case Instruction.DIV:
                             self.data_path.calc_alu(3)
                         case Instruction.MOD:
                             self.data_path.calc_alu(4)
@@ -293,89 +305,80 @@ class Machine:
                             self.data_path.set_neg()
                     self.tick()
 
-                    if 'res_reg' in instr:
-                        reg = int(re.search(r'[0-5]', re.search(r'^r[0-5]$', instr['res_reg']).group(0)).group(0))
-                        self.data_path.sel_reg(reg, 1)
+                    if isinstance(arg1, Register):
+                        self.data_path.sel_reg(register_to_code[arg1], 1)
 
                     self.latch_program_counter(True)
                     self.data_path.sel_addr_src(0)
                     self.tick()
-    
+
                 case Instruction.MOV:
-                    # arg1 = instr['arg1']
-                    # arg2 = instr['arg2']
-                    if re.search(r'^r[0-5]$', str(arg1)) is not None:
-                        reg = int(re.search(r'[0-5]', re.search(r'^r[0-5]$', arg1).group(0)).group(0))
-                        if isinstance(arg2, int):
-                            data_addr = int(arg2)
-                            self.data_path.data_addr = data_addr
-                            self.data_path.sel_addr_src(1)
-    
-                        elif re.search(r'^\[r[0-5]\]$', str(arg2)) is not None:
-                            reg2 = int(re.search(r'[0-5]', re.search(r'^\[r[0-5]\]$', arg2).group(0)).group(0))
-                            self.data_path.sel_l_bus(reg2)
+                    arg1, arg2 = self.fetch_operands_from_command()
+
+                    for arg in arg1, arg2:
+                        if isinstance(arg, Register):
+                            self.data_path.sel_l_bus(register_to_code[arg])
                             self.data_path.sel_l_inp(False)
-                            self.data_path.calc_alu(5)
-                            self.data_path.sel_addr_src(2)
-                        self.data_path.sel_reg(reg, 0)
-                    elif isinstance(arg1, int):
-                        data_addr = int(arg1)
-                        self.data_path.data_addr = data_addr
-                        self.data_path.sel_addr_src(1)
-                        if re.search(r'^r[0-5]$', str(arg2)) is not None:
-                            reg = int(re.search(r'[0-5]', re.search(r'^r[0-5]$', arg2).group(0)).group(0))
-                            self.data_path.sel_l_bus(reg)
-                            self.data_path.sel_l_inp(False)
-    
-                        if re.search(r'^(-?[1-9][0-9]*|0)$', str(arg2)) is not None:
-                            const = int(re.search(r'(-?[1-9][0-9]*|0)', str(arg2)).group(0))
-                            self.data_path.l_const = const
+                        else:
+                            self.data_path.l_const = self.select_data_from_memory(arg)
                             self.data_path.sel_l_inp(True)
-                        self.data_path.calc_alu(5)
-                        self.data_path.write()
-                    self.tick()
-    
-                    if 'res_reg' in instr:
-                        reg = int(re.search(r'[0-5]', re.search(r'^r[0-5]$', instr['res_reg']).group(0)).group(0))
-                        self.data_path.sel_reg(reg, 1)
-    
+
+                    if isinstance(arg1, Register):
+                        self.data_path.sel_reg(register_to_code[arg1], 1)
+
                     self.latch_program_counter(True)
                     self.data_path.sel_addr_src(0)
                     self.tick()
-    
+
                 case Instruction.PRINT | Instruction.PRINTC:
-                    arg1 = instr['arg1']
-                    if re.search(r'^r[0-5]$', str(arg1)) is not None:
-                        reg = int(re.search(r'[0-5]', re.search(r'^r[0-5]$', arg1).group(0)).group(0))
-                        self.data_path.sel_l_bus(reg)
+                    arg1, _ = self.fetch_operands_from_command()
+                    print("Trying to print")
+                    print(arg1)
+                    if isinstance(arg1, Register):
+                        self.data_path.sel_l_bus(register_to_code[arg1])
                         self.data_path.sel_l_inp(False)
                         self.data_path.calc_alu(5)
-                    elif re.search(r'^(-?[1-9][0-9]*|0)$', str(arg1)) is not None:
-                        const = int(re.search(r'(-?[1-9][0-9]*|0)', str(arg1)).group(0))
-                        self.data_path.l_const = const
+                    else:
+                        self.data_path.l_const = self.select_data_from_memory(arg1)
                         self.data_path.sel_l_inp(True)
                         self.data_path.calc_alu(5)
-    
+
                     if opcode == Instruction.PRINT:
                         self.data_path.output(True)
                     else:
                         self.data_path.output(False)
                     self.tick()
-    
-                    if 'res_reg' in instr:
-                        reg = int(re.search(r'[0-5]', re.search(r'^r[0-5]$', instr['res_reg']).group(0)).group(0))
-                        self.data_path.sel_reg(reg, 1)
-    
+
                     self.latch_program_counter(True)
                     self.data_path.sel_addr_src(0)
                     self.tick()
-    
-                case Instruction.READ:
-                    arg1 = instr['reg']
-                    if re.search(r'^r[0-5]$', str(arg1)) is not None:
-                        reg = int(re.search(r'[0-5]', re.search(r'^r[0-5]$', arg1).group(0)).group(0))
-                        self.data_path.sel_reg(reg, 2)
+
+                case Instruction.PRINTSTR:
+                    arg1, _ = self.fetch_operands_from_command()
+
+                    if isinstance(arg1, Register):
+                        return
+
+                    const = self.select_data_from_memory(arg1)
+                    while int(const) != ord('0'):
+                        self.data_path.l_const = const
+                        self.data_path.sel_l_inp(True)
+                        self.data_path.calc_alu(5)
+                        self.data_path.output(False)
+                        arg1.address += 1
                         self.tick()
+
+                    self.latch_program_counter(True)
+                    self.data_path.sel_addr_src(0)
+                    self.tick()
+
+                case Instruction.READ:
+                    arg1, _ = self.fetch_operands_from_command()
+
+                    if isinstance(arg1, Register):
+                        self.data_path.sel_reg(register_to_code[arg1], 2)
+                        self.tick()
+
                     self.latch_program_counter(sel_next=True)
                     self.data_path.sel_addr_src(0)
                     self.tick()
@@ -397,7 +400,7 @@ class Machine:
         datalines = string_data.strip().split('\n')
         for line in datalines:
             addr, value = line.split(' ')
-            self.data_path.data_seg[int(addr, 16)] = int(value)
+            self.data_path.data_seg[int(addr, 16)] = int(value, 2)
 
     def load_input_buffer_from_file(self, source_f):
         with open(source_f, encoding="utf-8") as f:
@@ -409,7 +412,4 @@ class Machine:
         self.data_path.sx = 0xFF
         self.data_path.ip = 0
         self.data_path.data_address = sorted(self.data_path.code_seg.keys())[0]
-
-
-
-
+        self.control_unit.program_counter = self.data_path.data_address
