@@ -36,7 +36,7 @@ class Machine:
             self.neg = 0  # Negative flag
             self.alu = 0  # Alu output value
 
-            self.input_buffer: list[str] = []
+            self.input_buffer: list[int] = []
             self.output_buffer = []
 
         def sel_l_bus(self, reg):
@@ -96,7 +96,8 @@ class Machine:
 
         def set_zero(self):
             """Set zero flag of operation"""
-            if self.alu == 0 or chr(self.alu) == "0":
+            # print(f"Value on alu is {self.alu} {repr(self.alu)} {chr(self.alu)}")
+            if self.alu == 0 or chr(self.alu) == "0" or repr(self.alu) == '0':
                 self.zero = 1
                 # print("Set zero")
             else:
@@ -144,20 +145,23 @@ class Machine:
 
         def input(self, reg):
             """Read from input buffer, interruptions executed separately"""
+            # print("Reading from port")
             if len(self.input_buffer) == 0:
                 raise EOFError()
             symbol = self.input_buffer.pop(0)
-            symbol_code = ord(symbol)
+            symbol_code = symbol
             assert -128 <= symbol_code <= 127, f'Input token invalid: {symbol_code}'
-            self.regs[reg] = symbol_code
-            logging.debug(f'Input: {repr(symbol)}')
+            addr = self.regs[register_to_code[reg]]
+            self.data_seg[addr] = symbol_code
+            logging.debug(f'Input: {chr(symbol)} to addr {hex(addr)}')
+            print(f'INPUT <<< {chr(symbol)} to addr {hex(addr)}')
 
         def output(self, out_type):
             """Write symbol from alu to output buffer"""
             if out_type:
                 symbol = self.alu
                 logging.debug(f'Output: {repr("".join(self.output_buffer))} << {repr(str(symbol))}')
-                self.output_buffer.append(str(symbol))
+                self.output_buffer.append(str(symbol)) if str(symbol) != '0' else str(symbol)
                 print(f"PRINT >>> {str(symbol)} with code {symbol}")
             else:
                 symbol = chr(self.alu)
@@ -228,14 +232,12 @@ class Machine:
 
         def decode_and_execute_instruction(self):
             # First fetch the instruction, decode operand mode, registers, and addresses
-            # print(f"Fetching instruction on addr {hex(self.data_path.data_address)}")
             instr = self.data_path.code_seg[self.data_path.data_address]
             opcode: Instruction = opcode_to_instruction[int(instr[0:8], 2)]
             op_mode: OperandMode = OperandMode(int(instr[8:11], 2))
-            # print(f"Fetched instruction {opcode} with operands {op_mode}")
             arg1, arg2 = self.fetch_operands_from_command()
             logging.debug(f"Instruction {opcode} with operands {op_mode}: {arg1} and {arg2}")
-            # print(f"Arguments {arg1} and {arg2}")
+            # print(f"Instruction {opcode} with operands {op_mode}: {arg1} and {arg2}")
 
             match opcode:
                 # Working, tested
@@ -385,10 +387,13 @@ class Machine:
 
                 case Instruction.READ:
                     arg1, _ = self.fetch_operands_from_command()
-
+                    # print("Trying to read from port")
                     if isinstance(arg1, Register):
-                        self.data_path.sel_reg(register_to_code[arg1], 2)
-                        self.tick()
+                        self.data_path.input(arg1)
+                        self.data_path.l_const = self.data_path.data_seg[self.data_path.regs[register_to_code[arg1]]]
+                        self.data_path.sel_l_inp(True)
+                        self.data_path.calc_alu(5)
+                        self.data_path.regs[register_to_code[arg1]] += 1
 
                     self.latch_program_counter(sel_next=True)
                     self.data_path.sel_addr_src(0)
@@ -416,7 +421,7 @@ class Machine:
     def load_input_buffer_from_file(self, source_f):
         with open(source_f, encoding="utf-8") as f:
             source_str = f.read()
-            self.data_path.input_buffer = source_str
+            self.data_path.input_buffer = [ord(char) for char in source_str]
         pass
 
     def init_start_state(self):
