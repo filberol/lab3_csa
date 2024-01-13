@@ -13,6 +13,7 @@ pytest = "^7.4.0"
 pytest-golden = "^0.2.2"
 ruff = "^0.1.8"
 logging = "^0.4.9.6"
+ci = "^0.1.1"
 
 
 [build-system]
