@@ -65,6 +65,6 @@ jobs:
           poetry install
       - name: Run tests
         run: |
-          coverage run -m pytest --verbose
-          coverage report
+          poetry run coverage run -m pytest --verbose
+          poetry run coverage report
     needs: test
