@@ -175,6 +175,7 @@ class Machine:
             self.program_counter: int = 0  # Program count is separate and synchronized with data path
             self.data_path: Machine.DataPath = data_path  # DataPath link
             self._tick: int = 0  # Tick simulation counter on instruction level
+            self._instr: int = 0
 
         def tick(self):
             """Simulate ticks for operations"""
@@ -183,6 +184,12 @@ class Machine:
         def current_tick(self):
             return self._tick
 
+        def next_instr(self):
+            self._instr += 1
+
+        def current_instr(self):
+            return self._instr
+
         def latch_program_counter(self, sel_next: bool):
             if sel_next:
                 self.program_counter += 1
@@ -190,6 +197,7 @@ class Machine:
                 arg1, _ = self.fetch_operands_from_command()
                 self.program_counter = arg1.address
             self.data_path.instr_addr = self.program_counter
+            self.next_instr()
             self.tick()
 
         def fetch_operands_from_command(self):
@@ -236,7 +244,9 @@ class Machine:
             opcode: Instruction = opcode_to_instruction[int(instr[0:8], 2)]
             op_mode: OperandMode = OperandMode(int(instr[8:11], 2))
             arg1, arg2 = self.fetch_operands_from_command()
-            logging.debug(f"Instruction {opcode} with operands {op_mode}: {arg1} and {arg2}")
+            logging.debug(f"Instr: {self.current_instr()}, Tick: {self.current_tick()}, Instruction {opcode} "
+                          f"with operands {op_mode}: {arg1} and {arg2}")
+            # print(f"Instr: {self.current_instr()}, Tick: {self.current_tick()}, Instruction {opcode} with operands {op_mode}: {arg1} and {arg2}")
             # print(f"Instruction {opcode} with operands {op_mode}: {arg1} and {arg2}")
 
             match opcode:
@@ -320,6 +330,7 @@ class Machine:
                     if isinstance(arg1, Register):
                         self.data_path.sel_reg(register_to_code[arg1], 1)
 
+                    # print(f"New ax value = {self.data_path.regs[0]}")
                     self.latch_program_counter(True)
                     self.data_path.sel_addr_src(0)
                     self.tick()
@@ -335,9 +346,9 @@ class Machine:
                         self.data_path.sel_r_inp(True)
                         self.data_path.calc_alu(0)
 
-                    # print(f"New ALU value {self.data_path.alu}")
-
                     self.data_path.sel_reg(register_to_code[arg1], 1)
+                    # print(f"Loaded {arg1} to value {self.data_path.alu}")
+                    self.tick()
 
                     self.latch_program_counter(True)
                     self.data_path.sel_addr_src(0)
@@ -355,6 +366,7 @@ class Machine:
                         self.data_path.l_const = self.select_data_from_memory(arg1)
                         self.data_path.sel_l_inp(True)
                         self.data_path.calc_alu(5)
+                    self.tick()
 
                     if opcode == Instruction.PRINT:
                         self.data_path.output(True)
@@ -394,6 +406,7 @@ class Machine:
                         self.data_path.sel_l_inp(True)
                         self.data_path.calc_alu(5)
                         self.data_path.regs[register_to_code[arg1]] += 1
+                    self.tick()
 
                     self.latch_program_counter(sel_next=True)
                     self.data_path.sel_addr_src(0)

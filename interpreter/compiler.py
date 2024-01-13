@@ -57,7 +57,7 @@ def compile_code(source_f, target_f):
             label = re.sub(r'\W+', '', parts[0])
             word = parts[1].strip()
             try:
-                word = int(word, 16)
+                word = int(word)
                 data_labels[label] = d_address
                 data_seg[d_address] = word
                 d_address += 1

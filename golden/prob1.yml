@@ -1,0 +1,103 @@
+source: |-
+  code:
+  mov ax [null]
+  mov cx [max]
+  loop:
+  mov bx [three]
+  add ax bx
+  mov bx [two]
+  add ax bx
+  mov bx [one]
+  add ax bx
+  mov bx [three]
+  add ax bx
+  mov bx [one]
+  add ax bx
+  mov bx [two]
+  add ax bx
+  mov bx [three]
+  add ax bx
+  print bx
+  hlt
+  data:
+  three: 3
+  two: 2
+  one: 1
+  null: 0
+  max: 1000
+input: |-
+
+code: |-
+  0x000a 10001001101000001000001000000000
+  0x000b 10001001101001001000001010000000
+  0x000c 10001001101000101000000010000000
+  0x000d 00000001100000000010000000000000
+  0x000e 10001001101000101000000100000000
+  0x000f 00000001100000000010000000000000
+  0x0010 10001001101000101000000110000000
+  0x0011 00000001100000000010000000000000
+  0x0012 10001001101000101000000010000000
+  0x0013 00000001100000000010000000000000
+  0x0014 10001001101000101000000110000000
+  0x0015 00000001100000000010000000000000
+  0x0016 10001001101000101000000100000000
+  0x0017 00000001100000000010000000000000
+  0x0018 10001001101000101000000010000000
+  0x0019 00000001100000000010000000000000
+  0x001a 11100110010000100000000000000000
+  0x001b 11110100001000000000000000000000
+  -
+  0x01 00000011
+  0x02 00000010
+  0x03 00000001
+  0x04 00000000
+  0x05 1111101000
+output: |-
+  Code section
+  0x000a - 10001001101000001000001000000000 - Instruction.MOV - OperandMode.REG_MEM - ops: ['Register.AX', '0x4 AddressMode.ABSOLUTE']
+  0x000b - 10001001101001001000001010000000 - Instruction.MOV - OperandMode.REG_MEM - ops: ['Register.CX', '0x5 AddressMode.ABSOLUTE']
+  0x000c - 10001001101000101000000010000000 - Instruction.MOV - OperandMode.REG_MEM - ops: ['Register.BX', '0x1 AddressMode.ABSOLUTE']
+  0x000d - 00000001100000000010000000000000 - Instruction.ADD - OperandMode.REG_REG - ops: ['Register.AX', 'Register.BX']
+  0x000e - 10001001101000101000000100000000 - Instruction.MOV - OperandMode.REG_MEM - ops: ['Register.BX', '0x2 AddressMode.ABSOLUTE']
+  0x000f - 00000001100000000010000000000000 - Instruction.ADD - OperandMode.REG_REG - ops: ['Register.AX', 'Register.BX']
+  0x0010 - 10001001101000101000000110000000 - Instruction.MOV - OperandMode.REG_MEM - ops: ['Register.BX', '0x3 AddressMode.ABSOLUTE']
+  0x0011 - 00000001100000000010000000000000 - Instruction.ADD - OperandMode.REG_REG - ops: ['Register.AX', 'Register.BX']
+  0x0012 - 10001001101000101000000010000000 - Instruction.MOV - OperandMode.REG_MEM - ops: ['Register.BX', '0x1 AddressMode.ABSOLUTE']
+  0x0013 - 00000001100000000010000000000000 - Instruction.ADD - OperandMode.REG_REG - ops: ['Register.AX', 'Register.BX']
+  0x0014 - 10001001101000101000000110000000 - Instruction.MOV - OperandMode.REG_MEM - ops: ['Register.BX', '0x3 AddressMode.ABSOLUTE']
+  0x0015 - 00000001100000000010000000000000 - Instruction.ADD - OperandMode.REG_REG - ops: ['Register.AX', 'Register.BX']
+  0x0016 - 10001001101000101000000100000000 - Instruction.MOV - OperandMode.REG_MEM - ops: ['Register.BX', '0x2 AddressMode.ABSOLUTE']
+  0x0017 - 00000001100000000010000000000000 - Instruction.ADD - OperandMode.REG_REG - ops: ['Register.AX', 'Register.BX']
+  0x0018 - 10001001101000101000000010000000 - Instruction.MOV - OperandMode.REG_MEM - ops: ['Register.BX', '0x1 AddressMode.ABSOLUTE']
+  0x0019 - 00000001100000000010000000000000 - Instruction.ADD - OperandMode.REG_REG - ops: ['Register.AX', 'Register.BX']
+  0x001a - 11100110010000100000000000000000 - Instruction.PRINT - OperandMode.REG - ops: ['Register.BX']
+  0x001b - 11110100001000000000000000000000 - Instruction.HLT - OperandMode.NONE - ops: []
+  Data section
+  0x01 - 00000011 - 3
+  0x02 - 00000010 - 2
+  0x03 - 00000001 - 1
+  0x04 - 00000000 - 0
+  0x05 - 1111101000 - 1000
+  ============================================================
+  PRINT >>> 3 with code 3
+  Finished operating by HALT
+log: |-
+  DEBUG    root:interpreter.py:247 Instr: 0, Tick: 0, Instruction Instruction.MOV with operands OperandMode.REG_MEM: Register.AX and 0x4 AddressMode.ABSOLUTE
+  DEBUG    root:interpreter.py:247 Instr: 1, Tick: 3, Instruction Instruction.MOV with operands OperandMode.REG_MEM: Register.CX and 0x5 AddressMode.ABSOLUTE
+  DEBUG    root:interpreter.py:247 Instr: 2, Tick: 6, Instruction Instruction.MOV with operands OperandMode.REG_MEM: Register.BX and 0x1 AddressMode.ABSOLUTE
+  DEBUG    root:interpreter.py:247 Instr: 3, Tick: 9, Instruction Instruction.ADD with operands OperandMode.REG_REG: Register.AX and Register.BX
+  DEBUG    root:interpreter.py:247 Instr: 4, Tick: 12, Instruction Instruction.MOV with operands OperandMode.REG_MEM: Register.BX and 0x2 AddressMode.ABSOLUTE
+  DEBUG    root:interpreter.py:247 Instr: 5, Tick: 15, Instruction Instruction.ADD with operands OperandMode.REG_REG: Register.AX and Register.BX
+  DEBUG    root:interpreter.py:247 Instr: 6, Tick: 18, Instruction Instruction.MOV with operands OperandMode.REG_MEM: Register.BX and 0x3 AddressMode.ABSOLUTE
+  DEBUG    root:interpreter.py:247 Instr: 7, Tick: 21, Instruction Instruction.ADD with operands OperandMode.REG_REG: Register.AX and Register.BX
+  DEBUG    root:interpreter.py:247 Instr: 8, Tick: 24, Instruction Instruction.MOV with operands OperandMode.REG_MEM: Register.BX and 0x1 AddressMode.ABSOLUTE
+  DEBUG    root:interpreter.py:247 Instr: 9, Tick: 27, Instruction Instruction.ADD with operands OperandMode.REG_REG: Register.AX and Register.BX
+  DEBUG    root:interpreter.py:247 Instr: 10, Tick: 30, Instruction Instruction.MOV with operands OperandMode.REG_MEM: Register.BX and 0x3 AddressMode.ABSOLUTE
+  DEBUG    root:interpreter.py:247 Instr: 11, Tick: 33, Instruction Instruction.ADD with operands OperandMode.REG_REG: Register.AX and Register.BX
+  DEBUG    root:interpreter.py:247 Instr: 12, Tick: 36, Instruction Instruction.MOV with operands OperandMode.REG_MEM: Register.BX and 0x2 AddressMode.ABSOLUTE
+  DEBUG    root:interpreter.py:247 Instr: 13, Tick: 39, Instruction Instruction.ADD with operands OperandMode.REG_REG: Register.AX and Register.BX
+  DEBUG    root:interpreter.py:247 Instr: 14, Tick: 42, Instruction Instruction.MOV with operands OperandMode.REG_MEM: Register.BX and 0x1 AddressMode.ABSOLUTE
+  DEBUG    root:interpreter.py:247 Instr: 15, Tick: 45, Instruction Instruction.ADD with operands OperandMode.REG_REG: Register.AX and Register.BX
+  DEBUG    root:interpreter.py:247 Instr: 16, Tick: 48, Instruction Instruction.PRINT with operands OperandMode.REG: Register.BX and None
+  DEBUG    root:interpreter.py:163 Output: '' << '3'
+  DEBUG    root:interpreter.py:247 Instr: 17, Tick: 52, Instruction Instruction.HLT with operands OperandMode.NONE: None and None

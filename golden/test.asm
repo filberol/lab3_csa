@@ -1,20 +1,26 @@
 code:
-mov ax [text_label]
-mov bx [buffer_label]
-mov cx [buffer_label]
-print_loop:
-printc ax
-cmp
-jne [print_loop]
-read_loop:
-read bx
-cmp
-jne [read_loop]
-output_loop:
-printc cx
-cmp
-jne [output_loop]
+mov ax [null]
+mov cx [max]
+loop:
+mov bx [three]
+add ax bx
+mov bx [two]
+add ax bx
+mov bx [one]
+add ax bx
+mov bx [three]
+add ax bx
+mov bx [one]
+add ax bx
+mov bx [two]
+add ax bx
+mov bx [three]
+add ax bx
+print bx
 hlt
 data:
-text_label: Hello,_
-buffer_label: buffer_word
+three: 3
+two: 2
+one: 1
+null: 0
+max: 1000

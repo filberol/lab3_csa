@@ -70,61 +70,61 @@ output: |-
   PRINT >>> 0 with code 48
   Finished operating by HALT
 log: |-
-  DEBUG    root:interpreter.py:239 Instruction Instruction.MOV with operands OperandMode.REG_MEM: Register.AX and 0x1 AddressMode.ABSOLUTE
-  DEBUG    root:interpreter.py:239 Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
+  DEBUG    root:interpreter.py:247 Instr: 0, Tick: 0, Instruction Instruction.MOV with operands OperandMode.REG_MEM: Register.AX and 0x1 AddressMode.ABSOLUTE
+  DEBUG    root:interpreter.py:247 Instr: 1, Tick: 3, Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
   DEBUG    root:interpreter.py:169 Output: '' << 'H'
-  DEBUG    root:interpreter.py:239 Instruction Instruction.CMP with operands OperandMode.NONE: None and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
+  DEBUG    root:interpreter.py:247 Instr: 2, Tick: 7, Instruction Instruction.CMP with operands OperandMode.NONE: None and None
+  DEBUG    root:interpreter.py:247 Instr: 3, Tick: 10, Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
+  DEBUG    root:interpreter.py:247 Instr: 4, Tick: 12, Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
   DEBUG    root:interpreter.py:169 Output: 'H' << 'e'
-  DEBUG    root:interpreter.py:239 Instruction Instruction.CMP with operands OperandMode.NONE: None and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
+  DEBUG    root:interpreter.py:247 Instr: 5, Tick: 16, Instruction Instruction.CMP with operands OperandMode.NONE: None and None
+  DEBUG    root:interpreter.py:247 Instr: 6, Tick: 19, Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
+  DEBUG    root:interpreter.py:247 Instr: 7, Tick: 21, Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
   DEBUG    root:interpreter.py:169 Output: 'He' << 'l'
-  DEBUG    root:interpreter.py:239 Instruction Instruction.CMP with operands OperandMode.NONE: None and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
+  DEBUG    root:interpreter.py:247 Instr: 8, Tick: 25, Instruction Instruction.CMP with operands OperandMode.NONE: None and None
+  DEBUG    root:interpreter.py:247 Instr: 9, Tick: 28, Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
+  DEBUG    root:interpreter.py:247 Instr: 10, Tick: 30, Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
   DEBUG    root:interpreter.py:169 Output: 'Hel' << 'l'
-  DEBUG    root:interpreter.py:239 Instruction Instruction.CMP with operands OperandMode.NONE: None and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
+  DEBUG    root:interpreter.py:247 Instr: 11, Tick: 34, Instruction Instruction.CMP with operands OperandMode.NONE: None and None
+  DEBUG    root:interpreter.py:247 Instr: 12, Tick: 37, Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
+  DEBUG    root:interpreter.py:247 Instr: 13, Tick: 39, Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
   DEBUG    root:interpreter.py:169 Output: 'Hell' << 'o'
-  DEBUG    root:interpreter.py:239 Instruction Instruction.CMP with operands OperandMode.NONE: None and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
+  DEBUG    root:interpreter.py:247 Instr: 14, Tick: 43, Instruction Instruction.CMP with operands OperandMode.NONE: None and None
+  DEBUG    root:interpreter.py:247 Instr: 15, Tick: 46, Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
+  DEBUG    root:interpreter.py:247 Instr: 16, Tick: 48, Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
   DEBUG    root:interpreter.py:169 Output: 'Hello' << ','
-  DEBUG    root:interpreter.py:239 Instruction Instruction.CMP with operands OperandMode.NONE: None and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
+  DEBUG    root:interpreter.py:247 Instr: 17, Tick: 52, Instruction Instruction.CMP with operands OperandMode.NONE: None and None
+  DEBUG    root:interpreter.py:247 Instr: 18, Tick: 55, Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
+  DEBUG    root:interpreter.py:247 Instr: 19, Tick: 57, Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
   DEBUG    root:interpreter.py:169 Output: 'Hello,' << '_'
-  DEBUG    root:interpreter.py:239 Instruction Instruction.CMP with operands OperandMode.NONE: None and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
+  DEBUG    root:interpreter.py:247 Instr: 20, Tick: 61, Instruction Instruction.CMP with operands OperandMode.NONE: None and None
+  DEBUG    root:interpreter.py:247 Instr: 21, Tick: 64, Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
+  DEBUG    root:interpreter.py:247 Instr: 22, Tick: 66, Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
   DEBUG    root:interpreter.py:169 Output: 'Hello,_' << 'w'
-  DEBUG    root:interpreter.py:239 Instruction Instruction.CMP with operands OperandMode.NONE: None and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
+  DEBUG    root:interpreter.py:247 Instr: 23, Tick: 70, Instruction Instruction.CMP with operands OperandMode.NONE: None and None
+  DEBUG    root:interpreter.py:247 Instr: 24, Tick: 73, Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
+  DEBUG    root:interpreter.py:247 Instr: 25, Tick: 75, Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
   DEBUG    root:interpreter.py:169 Output: 'Hello,_w' << 'o'
-  DEBUG    root:interpreter.py:239 Instruction Instruction.CMP with operands OperandMode.NONE: None and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
+  DEBUG    root:interpreter.py:247 Instr: 26, Tick: 79, Instruction Instruction.CMP with operands OperandMode.NONE: None and None
+  DEBUG    root:interpreter.py:247 Instr: 27, Tick: 82, Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
+  DEBUG    root:interpreter.py:247 Instr: 28, Tick: 84, Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
   DEBUG    root:interpreter.py:169 Output: 'Hello,_wo' << 'r'
-  DEBUG    root:interpreter.py:239 Instruction Instruction.CMP with operands OperandMode.NONE: None and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
+  DEBUG    root:interpreter.py:247 Instr: 29, Tick: 88, Instruction Instruction.CMP with operands OperandMode.NONE: None and None
+  DEBUG    root:interpreter.py:247 Instr: 30, Tick: 91, Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
+  DEBUG    root:interpreter.py:247 Instr: 31, Tick: 93, Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
   DEBUG    root:interpreter.py:169 Output: 'Hello,_wor' << 'l'
-  DEBUG    root:interpreter.py:239 Instruction Instruction.CMP with operands OperandMode.NONE: None and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
+  DEBUG    root:interpreter.py:247 Instr: 32, Tick: 97, Instruction Instruction.CMP with operands OperandMode.NONE: None and None
+  DEBUG    root:interpreter.py:247 Instr: 33, Tick: 100, Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
+  DEBUG    root:interpreter.py:247 Instr: 34, Tick: 102, Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
   DEBUG    root:interpreter.py:169 Output: 'Hello,_worl' << 'd'
-  DEBUG    root:interpreter.py:239 Instruction Instruction.CMP with operands OperandMode.NONE: None and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
+  DEBUG    root:interpreter.py:247 Instr: 35, Tick: 106, Instruction Instruction.CMP with operands OperandMode.NONE: None and None
+  DEBUG    root:interpreter.py:247 Instr: 36, Tick: 109, Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
+  DEBUG    root:interpreter.py:247 Instr: 37, Tick: 111, Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
   DEBUG    root:interpreter.py:169 Output: 'Hello,_world' << '!'
-  DEBUG    root:interpreter.py:239 Instruction Instruction.CMP with operands OperandMode.NONE: None and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
+  DEBUG    root:interpreter.py:247 Instr: 38, Tick: 115, Instruction Instruction.CMP with operands OperandMode.NONE: None and None
+  DEBUG    root:interpreter.py:247 Instr: 39, Tick: 118, Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
+  DEBUG    root:interpreter.py:247 Instr: 40, Tick: 120, Instruction Instruction.PRINTC with operands OperandMode.REG: Register.AX and None
   DEBUG    root:interpreter.py:169 Output: 'Hello,_world!' << '0'
-  DEBUG    root:interpreter.py:239 Instruction Instruction.CMP with operands OperandMode.NONE: None and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
-  DEBUG    root:interpreter.py:239 Instruction Instruction.HLT with operands OperandMode.NONE: None and None
+  DEBUG    root:interpreter.py:247 Instr: 41, Tick: 124, Instruction Instruction.CMP with operands OperandMode.NONE: None and None
+  DEBUG    root:interpreter.py:247 Instr: 42, Tick: 127, Instruction Instruction.JNE with operands OperandMode.MEM: 0xb AddressMode.ABSOLUTE and None
+  DEBUG    root:interpreter.py:247 Instr: 43, Tick: 129, Instruction Instruction.HLT with operands OperandMode.NONE: None and None
