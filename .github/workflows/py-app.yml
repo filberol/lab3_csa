@@ -13,7 +13,6 @@ permissions:
 jobs:
   lint:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     - name: Install poetry
@@ -30,6 +29,7 @@ jobs:
       run: |
         poetry run python -m ruff interpreter
         poetry run python -m ruff machine
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -46,5 +46,25 @@ jobs:
         poetry install
     - name: Run tests
       run: |
-        poetry run pytest ./tests -v
+        poetry run pytest
     needs: lint
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install poetry
+        run: pip install poetry
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: "poetry"
+      - name: Install project
+        run: |
+          poetry install
+      - name: Run tests
+        run: |
+          coverage run -m pytest --verbose
+          coverage report
+    needs: test
