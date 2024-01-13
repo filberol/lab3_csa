@@ -163,7 +163,7 @@ $ poetry install --no-root
 выборку, в зависимости от того, регистр это или указатель в память
 
 ### Алу и DataPath
-![lab3_csa](lab3_csa_model.drawio.png)
+![lab3_csa](lab3_csa_model.png)
 
 ### Использованные ресурсы
 Registers and https://faculty.etsu.edu/tarnoff/ntes2150/uproc/arch8088.htm
